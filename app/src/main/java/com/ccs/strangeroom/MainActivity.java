@@ -217,12 +217,24 @@ public class MainActivity extends AppCompatActivity {
     private void handleAnimalAttack(AnimalType animal) {
         switch (animal) {
             case WOLF:
-                health -= 20;
-                updateStatusText("Вы были атакованы волком! Ваше здоровье уменьшилось.");
+                if(health-20<0){
+                    health=0;
+                    updateStatusText("Вы умерли! Попробуйте ещё раз!");
+                }else {
+                    health -= 20;
+                    updateStatusText("Вы были атакованы волком! Ваше здоровье уменьшилось.");
+                }
                 break;
             case BEAR:
-                health -= 40;
-                updateStatusText("Вы были атакованы медведем! Ваше здоровье уменьшилось.");
+                if(health-40<0){
+                    health = 0;
+                    updateStatusText("Вы умерли! Попробуйте ещё раз!");
+
+                }
+                else {
+                    health -= 40;
+                    updateStatusText("Вы были атакованы медведем! Ваше здоровье уменьшилось.");
+                }
                 break;
         }
     }
