@@ -7,6 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private int hunger;
 
     private boolean hasFire;
+    private AdView mAdView;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,7 +53,21 @@ public class MainActivity extends AppCompatActivity {
         buildFireButton = findViewById(R.id.buildFireButton);
         restButton = findViewById(R.id.restButton);
         eatButton = findViewById(R.id.eatButton);
+        AdView adView = new AdView(this);
 
+        adView.setAdSize(AdSize.BANNER);
+
+        adView.setAdUnitId("ca-app-pub-1595862743951192/4552912234");
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+// TODO: Add adView to your view hierarchy.
         day.setText("День №"+countDay);
         exploreButton.setOnClickListener(new View.OnClickListener() {
             @Override

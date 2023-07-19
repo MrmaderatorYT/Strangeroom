@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StrangeRoom"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1595862743951192~1159041250"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
