@@ -28,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
     private Button buildFireButton;
     private Button restButton;
     private Button eatButton;
+    private Button craft;
+    private int hatDurability;
+    private int jacketDurability;
+    private boolean hasHat;
+    private boolean hasJacket;
+
 
     private int woodCount;
     private int countDay = 1;
@@ -53,6 +59,16 @@ public class MainActivity extends AppCompatActivity {
         buildFireButton = findViewById(R.id.buildFireButton);
         restButton = findViewById(R.id.restButton);
         eatButton = findViewById(R.id.eatButton);
+        craft = findViewById(R.id.craft);
+
+        woodCount = PreferenceConfig.getWood(this);
+        hatDurability = PreferenceConfig.getCap(this);
+        jacketDurability = PreferenceConfig.getJacket(this);
+        countDay = PreferenceConfig.getDay(this);
+        meatCount = PreferenceConfig.getMeat(this);
+        furCount = PreferenceConfig.getFur(this);
+        health = PreferenceConfig.getHealth(this);
+        hunger = PreferenceConfig.getHealth(this);
         AdView adView = new AdView(this);
 
         adView.setAdSize(AdSize.BANNER);
@@ -68,18 +84,23 @@ public class MainActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 // TODO: Add adView to your view hierarchy.
-        day.setText("День №"+countDay);
+        day.setText("День №" + countDay);
         exploreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(health<=0) {
+                if (health <= 0) {
                     health = 0;
                     updateStatusText("Вы умерли!");
-                }
-                else{
+                } else {
                     explore();
 
                 }
+            }
+        });
+        craft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                craftClothing();
             }
         });
 
@@ -156,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     private void buildFire() {
         if (woodCount >= 2 && !hasFire) {
             hasFire = true;
-            woodCount-=2;
+            woodCount -= 2;
             updateResourcesText();
             updateStatusText("Вы построили костер. Он дает тепло и защиту.");
             updateButtonsState(false, false, true);
@@ -177,20 +198,19 @@ public class MainActivity extends AppCompatActivity {
                 health = 100;
             }
 
-            if(hunger+4>=10){
-                hunger=10;
-            }
-            else{
-                hunger+=4;
+            if (hunger + 4 >= 10) {
+                hunger = 10;
+            } else {
+                hunger += 4;
             }
             countDay++;
-            day.setText("День №"+countDay);
-            hunger+=4;
+            day.setText("День №" + countDay);
+            hunger += 4;
             updateStatusText("Вы отдыхаете и восстанавливаете силы.");
             updateResourcesText();
             updateButtonsState(true, true, false);
             hasFire = false;
-            if(meatCount>0) {
+            if (meatCount > 0) {
                 meatCount--;
             }
         } else {
@@ -215,7 +235,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateResourcesText() {
-        resourcesTextView.setText("Дрова: " + woodCount + " Мясо: " + meatCount + " Кожа: " + furCount + "\nЗдоровье: " + health + " Голод: " + hunger);
+        resourcesTextView.setText("Дрова: " + woodCount + " Мясо: " + meatCount + " Кожа: " + furCount + "\nШапка: " + (hasHat ? hatDurability + "%" : "нет") + " Куртка: " + (hasJacket ? jacketDurability + "%" : "нет") + "\nЗдоровье: " + health + " Голод: " + hunger);
+        PreferenceConfig.setCap(getApplicationContext(), hatDurability);
+        PreferenceConfig.setJacket(getApplicationContext(), jacketDurability);
+        PreferenceConfig.setWood(getApplicationContext(), woodCount);
+        PreferenceConfig.setDay(getApplicationContext(), countDay);
+        PreferenceConfig.setFur(getApplicationContext(), furCount);
+        PreferenceConfig.setMeat(getApplicationContext(), meatCount);
+        PreferenceConfig.setHealth(getApplicationContext(), health);
+        PreferenceConfig.setHungry(getApplicationContext(), hunger);
+
     }
 
     private void updateButtonsState(boolean exploreEnabled, boolean buildFireEnabled, boolean restEnabled) {
@@ -224,10 +253,12 @@ public class MainActivity extends AppCompatActivity {
         restButton.setEnabled(restEnabled);
         eatButton.setEnabled(hunger < 10 && meatCount > 0);
     }
+
     private enum AnimalType {
         WOLF,
         BEAR
     }
+
     private AnimalType getRandomAnimal() {
         Random random = new Random();
         double randomValue = random.nextDouble();
@@ -241,21 +272,20 @@ public class MainActivity extends AppCompatActivity {
     private void handleAnimalAttack(AnimalType animal) {
         switch (animal) {
             case WOLF:
-                if(health-20<0){
-                    health=0;
+                if (health - 20 < 0) {
+                    health = 0;
                     updateStatusText("Вы умерли! Попробуйте ещё раз!");
-                }else {
+                } else {
                     health -= 20;
                     updateStatusText("Вы были атакованы волком! Ваше здоровье уменьшилось.");
                 }
                 break;
             case BEAR:
-                if(health-40<0){
+                if (health - 40 < 0) {
                     health = 0;
                     updateStatusText("Вы умерли! Попробуйте ещё раз!");
 
-                }
-                else {
+                } else {
                     health -= 40;
                     updateStatusText("Вы были атакованы медведем! Ваше здоровье уменьшилось.");
                 }
@@ -263,4 +293,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void craftClothing() {
+        if (furCount >= 3) { // Проверяем, есть ли достаточно кожи для создания одежды
+            furCount -= 3; // Снимаем кожу для создания одежды
+            // Создаем одежду
+            hasHat = true;
+            hasJacket = true;
+            hatDurability = 100; // Начальная прочность шапки
+            jacketDurability = 100; // Начальная прочность куртки
+            updateStatusText("Вы сделали шапку и куртку из кожи.");
+            wearClothing();
+        } else {
+            updateStatusText("У вас недостаточно кожи для создания одежды.");
+        }
+    }
+
+    private void wearClothing() {
+        if (hasHat && hasJacket) {
+            // Уменьшаем получаемый урон на 20%
+            // Например, если урон равен 40, то после ношения одежды урон будет 32
+            int damage = 40; // Пример урона
+            int reducedDamage = (int) (damage * 0.8); // Уменьшаем урон на 20%
+            // Обновляем здоровье с учетом уменьшенного урона
+            health -= reducedDamage;
+            // Уменьшаем прочность одежды
+            hatDurability -= 10; // Примерное уменьшение прочности за одно использование
+            jacketDurability -= 15; // Примерное уменьшение прочности за одно использование
+            // Проверяем прочность шапки
+            if (hatDurability <= 0) {
+                hatDurability = 0;
+                hasHat = false; // Шапка сломалась
+            }
+            // Проверяем прочность куртки
+            if (jacketDurability <= 0) {
+                jacketDurability = 0;
+                hasJacket = false; // Куртка сломалась
+            }
+            // Обновляем UI, чтобы отобразить прочность одежды
+            updateResourcesText();
+        }
+
+    }
 }
