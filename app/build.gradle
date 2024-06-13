@@ -11,8 +11,8 @@ android {
         applicationId "com.ccs.strangeroom"
         minSdk 25
         targetSdk 33
-        versionCode 5
-        versionName "1.2.3 beta"
+        versionCode 6
+        versionName "1.2.4 beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
